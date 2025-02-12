@@ -4,8 +4,7 @@ class AppConfig {
   //configure this
   // static String copyright_text =
   //     "@ Deve Finance " + this_year; //this shows in the splash screen
-  static String app_name =
-      "Devefinance Store"; //this shows in the splash screen
+  static String app_name = "Appleera Store"; //this shows in the splash screen
   static String search_bar_text = ""; //this will show in app Search bar.
   static String purchase_code =
       "a"; //enter your purchase code for the app from codecanyon
