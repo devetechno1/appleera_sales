@@ -1,4 +1,4 @@
-final String this_year = DateTime.now().year.toString();
+// final String this_year = DateTime.now().year.toString();
 
 class AppConfig {
   //configure this
