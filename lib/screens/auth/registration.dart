@@ -6,6 +6,7 @@ import 'package:active_ecommerce_cms_demo_app/custom/device_info.dart';
 import 'package:active_ecommerce_cms_demo_app/custom/google_recaptcha.dart';
 import 'package:active_ecommerce_cms_demo_app/custom/input_decorations.dart';
 import 'package:active_ecommerce_cms_demo_app/custom/intl_phone_input.dart';
+import 'package:active_ecommerce_cms_demo_app/custom/lang_text.dart';
 import 'package:active_ecommerce_cms_demo_app/custom/toast_component.dart';
 import 'package:active_ecommerce_cms_demo_app/helpers/shared_value_helper.dart';
 import 'package:active_ecommerce_cms_demo_app/my_theme.dart';
@@ -14,7 +15,6 @@ import 'package:active_ecommerce_cms_demo_app/repositories/auth_repository.dart'
 import 'package:active_ecommerce_cms_demo_app/repositories/profile_repository.dart';
 import 'package:active_ecommerce_cms_demo_app/screens/auth/login.dart';
 import 'package:active_ecommerce_cms_demo_app/screens/common_webview_screen.dart';
-import 'package:active_ecommerce_cms_demo_app/screens/home.dart';
 import 'package:active_ecommerce_cms_demo_app/ui_elements/auth_ui.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/gestures.dart';
@@ -28,6 +28,7 @@ import '../../custom/loading.dart';
 import '../../helpers/auth_helper.dart';
 import '../../repositories/address_repository.dart';
 import 'otp.dart';
+import 'package:go_router/go_router.dart';
 
 class Registration extends StatefulWidget {
   @override
@@ -35,10 +36,10 @@ class Registration extends StatefulWidget {
 }
 
 class _RegistrationState extends State<Registration> {
-  String _register_by = "email"; //phone or email
+  String _register_by =  otp_addon_installed.$ ? "phone" : "email"; //phone or email
   String initialCountry = 'US';
 
-  var countries_code = <String?>[];
+  List<String?> countries_code = <String?>[];
 
   String? _phone = "";
   bool? _isAgree = false;
@@ -64,6 +65,7 @@ class _RegistrationState extends State<Registration> {
   fetch_country() async {
     var data = await AddressRepository().getCountryList();
     data.countries.forEach((c) => countries_code.add(c.code));
+    setState(() {});
   }
 
   @override
@@ -75,7 +77,6 @@ class _RegistrationState extends State<Registration> {
   }
 
   onPressSignUp() async {
-    Loading.show(context);
 
     var name = _nameController.text.toString();
     var email = _emailController.text.toString();
@@ -119,6 +120,7 @@ class _RegistrationState extends State<Registration> {
       );
       return;
     }
+    Loading.show(context);
 
     var signupResponse = await AuthRepository().getSignupResponse(
         name,
@@ -167,7 +169,7 @@ class _RegistrationState extends State<Registration> {
         String? fcmToken = await _fcm.getToken();
 
         print("--fcm token--");
-        print(fcmToken);
+        print("fcmToken $fcmToken");
         if (is_logged_in.$ == true) {
           // update device token
           await ProfileRepository().getDeviceTokenUpdateResponse(fcmToken!);
@@ -177,17 +179,19 @@ class _RegistrationState extends State<Registration> {
       // context.go("/");
 
       if ((mail_verification_status.$ && _register_by == "email") ||
-          _register_by == "phone") {
+          (must_otp.$ && _register_by == "phone")) {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return Otp(
+            fromRegistration: true,
               // verify_by: _register_by,
               // user_id: signupResponse.user_id,
               );
         }));
       } else {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return Home();
-        }));
+        context.push("/");
+        // Navigator.push(context, MaterialPageRoute(builder: (context) {
+        //   return Home();
+        // }));
       }
     }
   }
@@ -197,7 +201,7 @@ class _RegistrationState extends State<Registration> {
     final _screen_width = MediaQuery.of(context).size.width;
     return AuthScreen.buildScreen(
         context,
-        "${AppLocalizations.of(context)!.join_ucf} " + AppConfig.app_name,
+        "${AppLocalizations.of(context)!.join_ucf} " + AppConfig.appNameOnAppLang(context),
         buildBody(context, _screen_width));
   }
 
@@ -255,23 +259,23 @@ class _RegistrationState extends State<Registration> {
                               hint_text: "johndoe@example.com"),
                         ),
                       ),
-                      otp_addon_installed.$
-                          ? GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _register_by = "phone";
-                                });
-                              },
-                              child: Text(
-                                AppLocalizations.of(context)!
-                                    .or_register_with_a_phone,
-                                style: TextStyle(
-                                    color: MyTheme.accent_color,
-                                    fontStyle: FontStyle.italic,
-                                    decoration: TextDecoration.underline),
-                              ),
-                            )
-                          : Container()
+                      // otp_addon_installed.$
+                      //     ? GestureDetector(
+                      //         onTap: () {
+                      //           setState(() {
+                      //             _register_by = "phone";
+                      //           });
+                      //         },
+                      //         child: Text(
+                      //           AppLocalizations.of(context)!
+                      //               .or_register_with_a_phone,
+                      //           style: TextStyle(
+                      //               color: MyTheme.accent_color,
+                      //               fontStyle: FontStyle.italic,
+                      //               decoration: TextDecoration.underline),
+                      //         ),
+                      //       )
+                      //     : Container()
                     ],
                   ),
                 )
@@ -281,13 +285,14 @@ class _RegistrationState extends State<Registration> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Container(
+                      SizedBox(
                         height: 36,
                         child: CustomInternationalPhoneNumberInput(
                           countries: countries_code,
+                          initialValue: PhoneNumber(isoCode: AppConfig.default_country),
                           onInputChanged: (PhoneNumber number) {
-                            print(number.phoneNumber);
                             setState(() {
+                              if(number.isoCode != null)  AppConfig.default_country = number.isoCode!;
                               _phone = number.phoneNumber;
                             });
                           },
@@ -315,21 +320,21 @@ class _RegistrationState extends State<Registration> {
                           },
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _register_by = "email";
-                          });
-                        },
-                        child: Text(
-                          AppLocalizations.of(context)!
-                              .or_register_with_an_email,
-                          style: TextStyle(
-                              color: MyTheme.accent_color,
-                              fontStyle: FontStyle.italic,
-                              decoration: TextDecoration.underline),
-                        ),
-                      )
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     setState(() {
+                      //       _register_by = "email";
+                      //     });
+                      //   },
+                      //   child: Text(
+                      //     AppLocalizations.of(context)!
+                      //         .or_register_with_an_email,
+                      //     style: TextStyle(
+                      //         color: MyTheme.accent_color,
+                      //         fontStyle: FontStyle.italic,
+                      //         decoration: TextDecoration.underline),
+                      //   ),
+                      // )
                     ],
                   ),
                 ),
@@ -426,9 +431,9 @@ class _RegistrationState extends State<Registration> {
                             setState(() {});
                           }),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
+                    Flexible(
                       child: Container(
+                        margin: const EdgeInsetsDirectional.only(start: 8.0),
                         width: DeviceInfo(context).width! - 130,
                         child: RichText(
                             maxLines: 2,
@@ -437,7 +442,7 @@ class _RegistrationState extends State<Registration> {
                                     color: MyTheme.font_grey, fontSize: 12),
                                 children: [
                                   TextSpan(
-                                    text: "I agree to the",
+                                    text: LangText(context).local.i_agree_to_the,
                                   ),
                                   TextSpan(
                                     recognizer: TapGestureRecognizer()

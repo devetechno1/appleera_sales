@@ -1,10 +1,22 @@
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+
+
 // final String this_year = DateTime.now().year.toString();
 
 class AppConfig {
   //configure this
   // static String copyright_text =
   //     "@ Deve Finance " + this_year; //this shows in the splash screen
-  static String app_name = "Appleera Store"; //this shows in the splash screen
+  static const String app_name_ar = "متجر ابل ايرا";
+  static const String app_name_en = "Appleera Store";
+  /// This get the name of the application in deviceLocale
+  static String appNameOnDeviceLang = PlatformDispatcher.instance.locale.languageCode == 'ar' ? app_name_ar : app_name_en;
+
+  /// This get the name of the application in appLocal
+  static String appNameOnAppLang(BuildContext context)=> Localizations.localeOf(context).languageCode == 'ar' ? app_name_ar : app_name_en;
+  
   static String search_bar_text = ""; //this will show in app Search bar.
   static String purchase_code =
       "a"; //enter your purchase code for the app from codecanyon
@@ -16,11 +28,14 @@ class AppConfig {
   static String mobile_app_code = "en";
   static bool app_language_rtl = false;
 
+  //Default country config
+  static String default_country = "EG";
+
   //configure this
   static const bool HTTPS =
       true; //if you are using localhost , set this to false
   static const DOMAIN_PATH =
-      "appleerastore.com"; //use only domain name without http:// or https://
+      "devefinance.com"; //use only domain name without http:// or https://
 
   //do not configure these below
   static const String API_ENDPATH = "api/v2";
