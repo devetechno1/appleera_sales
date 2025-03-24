@@ -14,7 +14,7 @@ final List<Messenger> messengerList = [
   Messenger(
     id: "2",
     image: "assets/login_registration_form_logo.png",
-    name: "Appleera Store",
+    name: "Appleerastore",
   ),
   Messenger(
     id: "3",
