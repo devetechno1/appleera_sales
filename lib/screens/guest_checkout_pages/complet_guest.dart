@@ -15,7 +15,6 @@ import 'package:active_ecommerce_cms_demo_app/my_theme.dart';
 import 'package:active_ecommerce_cms_demo_app/repositories/address_repository.dart';
 import 'package:active_ecommerce_cms_demo_app/repositories/guest_checkout_repository.dart';
 import 'package:active_ecommerce_cms_demo_app/screens/checkout/shipping_info.dart';
-import 'package:active_ecommerce_cms_demo_app/screens/map_location.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -24,7 +23,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 class GuestCheckoutAddress extends StatefulWidget {
   GuestCheckoutAddress({Key? key, this.from_shipping_info = false})
       : super(key: key);
-  bool from_shipping_info;
+  final bool from_shipping_info;
 
   @override
   _GuestCheckoutAddressState createState() => _GuestCheckoutAddressState();
@@ -94,12 +93,12 @@ class _GuestCheckoutAddressState extends State<GuestCheckoutAddress> {
   fetchShippingAddressList() async {
     // print("enter fetchShippingAddressList");
     var addressResponse = await AddressRepository().getAddressList();
-    _shippingAddressList.addAll(addressResponse.addresses);
+    _shippingAddressList.addAll(addressResponse.addresses ?? []);
     setState(() {
       _isInitial = false;
     });
     if (_shippingAddressList.length > 0) {
-      var count = 0;
+      // var count = 0;
       _shippingAddressList.forEach((address) {
         if (address.set_default == 1) {
           _default_shipping_address = address.id;
@@ -389,7 +388,7 @@ class _GuestCheckoutAddressState extends State<GuestCheckoutAddress> {
                     child: Column(
                       children: [
                         Text(
-                          "${AppLocalizations.of(context)!.no_address_is_added}",
+                          "${AppLocalizations.of(context)!.add_new_address}",
                           style: TextStyle(
                               fontSize: 13,
                               color: MyTheme.dark_font_grey,
@@ -1142,7 +1141,7 @@ class _GuestCheckoutAddressState extends State<GuestCheckoutAddress> {
                 fontWeight: FontWeight.bold),
           ),
           Text(
-            "* ${AppLocalizations.of(context)!.double_tap_on_an_address_to_make_it_default}",
+            "* ${AppLocalizations.of(context)!.tap_on_an_address_to_make_it_default}",
             style: TextStyle(fontSize: 12, color: Color(0xff6B7377)),
           ),
         ],
@@ -1196,7 +1195,7 @@ class _GuestCheckoutAddressState extends State<GuestCheckoutAddress> {
 
   GestureDetector buildAddressItemCard(index) {
     return GestureDetector(
-      onDoubleTap: () {
+      onTap: () {
         if (_default_shipping_address != _shippingAddressList[index].id) {
           onAddressSwitch(_shippingAddressList[index].id);
         }

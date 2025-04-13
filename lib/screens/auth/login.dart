@@ -16,7 +16,7 @@ import 'package:active_ecommerce_cms_demo_app/repositories/profile_repository.da
 import 'package:active_ecommerce_cms_demo_app/screens/auth/password_forget.dart';
 import 'package:active_ecommerce_cms_demo_app/screens/auth/registration.dart';
 import 'package:active_ecommerce_cms_demo_app/screens/main.dart';
-import 'package:active_ecommerce_cms_demo_app/social_config.dart';
+// import 'package:active_ecommerce_cms_demo_app/social_config.dart';
 import 'package:active_ecommerce_cms_demo_app/ui_elements/auth_ui.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -28,8 +28,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:twitter_login/twitter_login.dart';
+// import 'package:twitter_login/twitter_login.dart';
 
+import '../../custom/lang_text.dart';
 import '../../custom/loading.dart';
 import '../../repositories/address_repository.dart';
 import 'otp.dart';
@@ -64,7 +65,7 @@ class _LoginState extends State<Login> {
 
   fetch_country() async {
     var data = await AddressRepository().getCountryList();
-    data.countries.forEach((c) => countries_code.add(c.code));
+    data.countries?.forEach((c) => countries_code.add(c.code));
     setState(() {});
   }
 
@@ -257,46 +258,46 @@ class _LoginState extends State<Login> {
     }
   }
 
-  onPressedTwitterLogin() async {
-    try {
-      final twitterLogin = new TwitterLogin(
-          apiKey: SocialConfig().twitter_consumer_key,
-          apiSecretKey: SocialConfig().twitter_consumer_secret,
-          redirectURI: 'activeecommerceflutterapp://');
-      // Trigger the sign-in flow
+  // onPressedTwitterLogin() async {
+  //   try {
+  //     final twitterLogin = new TwitterLogin(
+  //         apiKey: SocialConfig().twitter_consumer_key,
+  //         apiSecretKey: SocialConfig().twitter_consumer_secret,
+  //         redirectURI: 'activeecommerceflutterapp://');
+  //     // Trigger the sign-in flow
 
-      final authResult = await twitterLogin.login();
+  //     final authResult = await twitterLogin.login();
 
-      // print("authResult");
+  //     // print("authResult");
 
-      // print(json.encode(authResult));
+  //     // print(json.encode(authResult));
 
-      var loginResponse = await AuthRepository().getSocialLoginResponse(
-          "twitter",
-          authResult.user!.name,
-          authResult.user!.email,
-          authResult.user!.id.toString(),
-          access_token: authResult.authToken,
-          secret_token: authResult.authTokenSecret);
+  //     var loginResponse = await AuthRepository().getSocialLoginResponse(
+  //         "twitter",
+  //         authResult.user!.name,
+  //         authResult.user!.email,
+  //         authResult.user!.id.toString(),
+  //         access_token: authResult.authToken,
+  //         secret_token: authResult.authTokenSecret);
 
-      if (loginResponse.result == false) {
-        ToastComponent.showDialog(
-          loginResponse.message!,
-        );
-      } else {
-        ToastComponent.showDialog(
-          loginResponse.message!,
-        );
-        AuthHelper().setUserData(loginResponse);
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return Main();
-        }));
-      }
-    } on Exception catch (e) {
-      print("error is ....... $e");
-      // TODO
-    }
-  }
+  //     if (loginResponse.result == false) {
+  //       ToastComponent.showDialog(
+  //         loginResponse.message!,
+  //       );
+  //     } else {
+  //       ToastComponent.showDialog(
+  //         loginResponse.message!,
+  //       );
+  //       AuthHelper().setUserData(loginResponse);
+  //       Navigator.push(context, MaterialPageRoute(builder: (context) {
+  //         return Main();
+  //       }));
+  //     }
+  //   } on Exception catch (e) {
+  //     print("error is ....... $e");
+  //     // TODO
+  //   }
+  // }
 
   String generateNonce([int length = 32]) {
     final charset =
@@ -441,6 +442,8 @@ class _LoginState extends State<Login> {
                         height: 36,
                         child: CustomInternationalPhoneNumberInput(
                           countries: countries_code,
+                          hintText: LangText(context).local.phone_number_ucf,
+                          errorMessage: LangText(context).local.invalid_phone_number,
                           initialValue: PhoneNumber(isoCode: AppConfig.default_country),
                           onInputChanged: (PhoneNumber number) {
                             setState(() {
@@ -650,19 +653,19 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                         ),
-                        if (allow_twitter_login.$)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: InkWell(
-                              onTap: () {
-                                onPressedTwitterLogin();
-                              },
-                              child: Container(
-                                width: 28,
-                                child: Image.asset("assets/twitter_logo.png"),
-                              ),
-                            ),
-                          ),
+                        // if (allow_twitter_login.$)
+                        //   Padding(
+                        //     padding: const EdgeInsets.only(left: 15.0),
+                        //     child: InkWell(
+                        //       onTap: () {
+                        //         onPressedTwitterLogin();
+                        //       },
+                        //       child: Container(
+                        //         width: 28,
+                        //         child: Image.asset("assets/twitter_logo.png"),
+                        //       ),
+                        //     ),
+                        //   ),
                         /* if (Platform.isIOS)
                           Padding(
                             padding: const EdgeInsets.only(left: 15.0),

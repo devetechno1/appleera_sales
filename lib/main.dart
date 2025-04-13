@@ -19,12 +19,12 @@ import 'package:shared_value/shared_value.dart';
 import 'app_config.dart';
 import 'custom/aiz_route.dart';
 
+import 'helpers/business_setting_helper.dart';
 import 'helpers/main_helpers.dart';
 import 'lang_config.dart';
 import 'my_theme.dart';
 import 'other_config.dart';
 import 'presenter/cart_counter.dart';
-import 'presenter/cart_provider.dart';
 import 'presenter/currency_presenter.dart';
 import 'presenter/home_presenter.dart';
 import 'presenter/select_address_provider.dart';
@@ -61,12 +61,14 @@ import 'single_banner/photo_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  await FlutterDownloader.initialize(
-    debug: kDebugMode, // Optional: set to false to disable printing logs to console
-    ignoreSsl:
-        true, // Optional: set to false to disable working with HTTP links
-  );
+  await Future.wait([
+    Firebase.initializeApp(),
+    FlutterDownloader.initialize(
+      debug: kDebugMode, // Optional: set to false to disable printing logs to console
+      ignoreSsl:true, // Optional: set to false to disable working with HTTP links
+    ),
+  ]);
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -178,6 +180,7 @@ var routes = GoRouter(
               pageBuilder: (BuildContext context, GoRouterState state) =>
                   MaterialPage(
                       child: (CategoryList(
+                        name: getParameter(state, "name"),
                     slug: getParameter(state, "slug"),
                   )))),
           GoRoute(
@@ -185,6 +188,7 @@ var routes = GoRouter(
               pageBuilder: (BuildContext context, GoRouterState state) =>
                   MaterialPage(
                       child: (CategoryProducts(
+                        name: getParameter(state, "name"),
                     slug: getParameter(state, "slug"),
                   )))),
           GoRoute(
@@ -248,6 +252,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    BusinessSettingHelper.setInitLang();
     Future.microtask(() async {
       await Firebase.initializeApp();
       if (OtherConfig.USE_PUSH_NOTIFICATION) PushNotificationService.initialize();
@@ -261,10 +266,8 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (context) => CartCounter()),
-        ChangeNotifierProvider(create: (context) => CartProvider()),
         ChangeNotifierProvider(create: (context) => SelectAddressProvider()),
-        ChangeNotifierProvider(
-            create: (context) => UnReadNotificationCounter()),
+        ChangeNotifierProvider(create: (context) => UnReadNotificationCounter()),
         ChangeNotifierProvider(create: (context) => CurrencyPresenter()),
 
         ///

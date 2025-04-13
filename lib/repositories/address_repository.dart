@@ -17,7 +17,7 @@ import 'package:active_ecommerce_cms_demo_app/middlewares/banned_user.dart';
 import 'package:active_ecommerce_cms_demo_app/repositories/api-request.dart';
 
 class AddressRepository {
-  Future<dynamic> getAddressList() async {
+  Future<AddressResponse> getAddressList() async {
     String url = ("${AppConfig.BASE_URL}/user/shipping/address");
     final response = await ApiRequest.get(
       url: url,
@@ -165,7 +165,7 @@ class AddressRepository {
     return addressDeleteResponseFromJson(response.body);
   }
 
-  Future<dynamic> getCityListByState({state_id = 0, name = ""}) async {
+  Future<CityResponse> getCityListByState({state_id = 0, name = ""}) async {
     String url =
         ("${AppConfig.BASE_URL}/cities-by-state/${state_id}?name=${name}");
     final response = await ApiRequest.get(url: url, middleware: BannedUser());
@@ -179,7 +179,7 @@ class AddressRepository {
     return myStateResponseFromJson(response.body);
   }
 
-  Future<dynamic> getCountryList({name = ""}) async {
+  Future<CountryResponse> getCountryList({name = ""}) async {
     String url = ("${AppConfig.BASE_URL}/countries?name=${name}");
     final response = await ApiRequest.get(url: url, middleware: BannedUser());
     return countryResponseFromJson(response.body);
